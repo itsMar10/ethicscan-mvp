@@ -46,7 +46,7 @@ function App() {
 
     try {
       // We use 'cleanUrl' here so the backend doesn't reject it
-      const response = await axios.post('/scan', { target_url: cleanUrl })
+      const response = await axios.post('https://ethicscan-api.onrender.com/scan', { target_url: cleanUrl })
       setResults(response.data)
     } catch (err) {
       setError('Scan failed. Please check the URL and try again.')
@@ -59,7 +59,7 @@ function App() {
   const handleDownloadReport = async () => {
     if (!results) return
     try {
-      const response = await axios.post('/report', results, {
+      const response = await axios.post('https://ethicscan-api.onrender.com/report', results, {
         responseType: 'blob'
       })
       const url = window.URL.createObjectURL(new Blob([response.data]))
