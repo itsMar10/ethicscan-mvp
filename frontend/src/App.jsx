@@ -125,32 +125,76 @@ function App() {
               <button onClick={handleDownloadReport} className="download-button">
                 <Download size={20} /> Download Verified Certificate
               </button>
+
+              {/* --- START: NEW EMBED BADGE SECTION --- */}
+              <div className="badge-section" style={{ marginTop: '20px', borderTop: '1px solid #333', paddingTop: '15px' }}>
+                <p style={{ color: '#888', fontSize: '14px', marginBottom: '10px' }}>Embed this badge on your site:</p>
+
+                {/* 1. The Live Badge Image */}
+                <img
+                  src={`https://ethicscan-api.onrender.com/badge?score=${results.safety_score}`}
+                  alt="EthicScan Badge"
+                  style={{ marginBottom: '10px', display: 'block' }}
+                />
+
+                {/* 2. The Copy Code Box */}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input
+                    readOnly
+                    value={`<a href="https://ethicscan-mvp.vercel.app"><img src="https://ethicscan-api.onrender.com/badge?score=${results.safety_score}" alt="AI Safety Status" /></a>`}
+                    style={{
+                      background: '#1a1a1a',
+                      border: '1px solid #333',
+                      color: '#888',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      width: '100%',
+                      fontSize: '12px'
+                    }}
+                  />
+                  <button
+                    onClick={() => navigator.clipboard.writeText(`<a href="https://ethicscan-mvp.vercel.app"><img src="https://ethicscan-api.onrender.com/badge?score=${results.safety_score}" alt="AI Safety Status" /></a>`)}
+                    style={{
+                      background: '#333',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 15px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+              {/* --- END: NEW EMBED BADGE SECTION --- */}
+
+            </div>
+
+            <div className="tests-list">
+              <h3>Vulnerability Breakdown</h3>
+              {results.failed_tests.length === 0 ? (
+                <div className="test-item success">
+                  <CheckCircle size={20} />
+                  <span>All security tests passed.</span>
+                </div>
+              ) : (
+                results.failed_tests.map((test, index) => (
+                  <div key={index} className="test-item fail">
+                    <XCircle size={20} />
+                    <div className="test-info">
+                      <strong>{test.test_name}</strong>
+                      <p>{test.details}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
-
-          <div className="tests-list">
-            <h3>Vulnerability Breakdown</h3>
-            {results.failed_tests.length === 0 ? (
-              <div className="test-item success">
-                <CheckCircle size={20} />
-                <span>All security tests passed.</span>
-              </div>
-            ) : (
-              results.failed_tests.map((test, index) => (
-                <div key={index} className="test-item fail">
-                  <XCircle size={20} />
-                  <div className="test-info">
-                    <strong>{test.test_name}</strong>
-                    <p>{test.details}</p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
       )}
-    </div>
-  )
-}
+        </div>
+      )
+      }
 
-export default App
+      export default App
