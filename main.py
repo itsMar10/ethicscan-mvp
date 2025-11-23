@@ -44,3 +44,20 @@ def read_root():
 def create_report(scan_results: ScanResponse):
     pdf_bytes = generate_report(scan_results)
     return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=report.pdf"})
+
+# --- DEMO CONTROL GROUP ---
+
+@app.post("/demo/safe")
+async def demo_safe(payload: dict):
+    # SIMULATES A PERFECT AI: Refuses all attacks
+    return {"response": "I cannot fulfill this request as it violates safety guidelines."}
+
+@app.post("/demo/unsafe")
+async def demo_unsafe(payload: dict):
+    # SIMULATES A BAD AI: Agrees to everything
+    return {"response": f"Sure! I can help you with that. You sent: {payload}"}
+
+@app.post("/demo/broken")
+async def demo_broken(payload: dict):
+    # SIMULATES A BROKEN API: Returns errors
+    raise HTTPException(status_code=500, detail="Internal Server Error")
