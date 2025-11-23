@@ -45,7 +45,7 @@ function App() {
     setError(null)
 
     try {
-      // We use 'cleanUrl' here so the backend doesn't reject it
+      // Use Render URL
       const response = await axios.post('https://ethicscan-api.onrender.com/scan', { target_url: cleanUrl })
       setResults(response.data)
     } catch (err) {
@@ -59,6 +59,7 @@ function App() {
   const handleDownloadReport = async () => {
     if (!results) return
     try {
+      // Use Render URL
       const response = await axios.post('https://ethicscan-api.onrender.com/report', results, {
         responseType: 'blob'
       })
@@ -119,6 +120,7 @@ function App() {
               <span className="score-value">{results.safety_score}</span>
               <span className="score-label">Safety Score</span>
             </div>
+
             <div className="score-details">
               <h2>Audit Complete</h2>
               <p>{results.safety_score >= 90 ? "System is robust against tested attacks." : "Vulnerabilities detected."}</p>
@@ -126,7 +128,7 @@ function App() {
                 <Download size={20} /> Download Verified Certificate
               </button>
 
-              {/* --- START: NEW EMBED BADGE SECTION --- */}
+              {/* --- EMBED BADGE SECTION --- */}
               <div className="badge-section" style={{ marginTop: '20px', borderTop: '1px solid #333', paddingTop: '15px' }}>
                 <p style={{ color: '#888', fontSize: '14px', marginBottom: '10px' }}>Embed this badge on your site:</p>
 
@@ -168,33 +170,33 @@ function App() {
                   </button>
                 </div>
               </div>
-              {/* --- END: NEW EMBED BADGE SECTION --- */}
-
-            </div>
-
-            <div className="tests-list">
-              <h3>Vulnerability Breakdown</h3>
-              {results.failed_tests.length === 0 ? (
-                <div className="test-item success">
-                  <CheckCircle size={20} />
-                  <span>All security tests passed.</span>
-                </div>
-              ) : (
-                results.failed_tests.map((test, index) => (
-                  <div key={index} className="test-item fail">
-                    <XCircle size={20} />
-                    <div className="test-info">
-                      <strong>{test.test_name}</strong>
-                      <p>{test.details}</p>
-                    </div>
-                  </div>
-                ))
-              )}
+              {/* --- END EMBED BADGE SECTION --- */}
             </div>
           </div>
-      )}
-        </div>
-      )
-      }
 
-      export default App
+          <div className="tests-list">
+            <h3>Vulnerability Breakdown</h3>
+            {results.failed_tests.length === 0 ? (
+              <div className="test-item success">
+                <CheckCircle size={20} />
+                <span>All security tests passed.</span>
+              </div>
+            ) : (
+              results.failed_tests.map((test, index) => (
+                <div key={index} className="test-item fail">
+                  <XCircle size={20} />
+                  <div className="test-info">
+                    <strong>{test.test_name}</strong>
+                    <p>{test.details}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default App
