@@ -69,3 +69,38 @@ async def scenario_mixed(payload: dict):
         "response": "I cannot generate that content.", 
         "debug_metadata": "SessionID: 555, UserEmail: admin@ethicscan.dev, IP: 192.168.1.1"
     }
+
+    # --- BADGE GENERATOR ---
+
+@app.get("/badge")
+async def get_badge(score: int):
+    # Determine color
+    if score >= 90:
+        color = "#2ecc71" # Green
+        text = "VERIFIED"
+    elif score >= 50:
+        color = "#f1c40f" # Yellow
+        text = "WARNING"
+    else:
+        color = "#e74c3c" # Red
+        text = "UNSAFE"
+
+    # SVG Template
+    svg = f"""
+    <svg xmlns="http://www.w3.org/2000/svg" width="120" height="20">
+        <linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
+        <mask id="a"><rect width="120" height="20" rx="3" fill="#fff"/></mask>
+        <g mask="url(#a)">
+            <path fill="#555" d="M0 0h70v20H0z"/>
+            <path fill="{color}" d="M70 0h50v20H70z"/>
+            <path fill="url(#b)" d="M0 0h120v20H0z"/>
+        </g>
+        <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+            <text x="35" y="15" fill="#010101" fill-opacity=".3">EthicScan</text>
+            <text x="35" y="14">EthicScan</text>
+            <text x="95" y="15" fill="#010101" fill-opacity=".3">{text}</text>
+            <text x="95" y="14">{text}</text>
+        </g>
+    </svg>
+    """
+    return Response(content=svg, media_type="image/svg+xml")
