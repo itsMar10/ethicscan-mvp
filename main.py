@@ -72,10 +72,10 @@ async def scenario_mixed(payload: dict):
 
 @app.get("/badge")
 async def get_badge(score: int):
-    # Clamp score between 0 and 100 for display
+    # Clamp score
     score = max(0, min(score, 100))
 
-    # ----- 1. Determine Logic (Colors & Text) -----
+    # ----- 1. Logic -----
     if score >= 90:
         # Secure (Green)
         color_primary = "#10B981"
@@ -95,9 +95,11 @@ async def get_badge(score: int):
         glow_color = "#F97373"
         status_text = "UNSAFE"
 
-    # ----- 2. Modern SVG Template -----
+    # ----- 2. Scaled SVG Template -----
+    # width/height = 160x48 (Half size for display)
+    # viewBox = 0 0 320 96 (Internal coordinates keep high detail)
     svg = f"""
-    <svg xmlns="http://www.w3.org/2000/svg" width="320" height="96" viewBox="0 0 320 96">
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="48" viewBox="0 0 320 96">
       <defs>
         <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#0F172A" />
@@ -119,21 +121,17 @@ async def get_badge(score: int):
       <g transform="translate(32, 26)">
         <path d="M24 4L40 10V22C40 31 34 40 24 44C14 40 8 31 8 22V10L24 4Z" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linejoin="round" />
         <path d="M17 22L22 27L31 17" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-        
         <text x="56" y="32" font-family="Verdana, Geneva, sans-serif" font-size="24" font-weight="600" fill="#F9FAFB">EthicScan</text>
       </g>
 
       <g transform="translate(220, 12)">
         <rect width="88" height="72" rx="20" fill="url(#scoreGradient)" />
-        
-        <text x="44" y="36" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">{score}%</text>
-        
-        <text x="44" y="58" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="13" font-weight="600" fill="#FFFFFF" opacity="0.9">{status_text}</text>
+        <text x="44" y="36" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="30" font-weight="700" fill="#FFFFFF">{score}%</text>
+        <text x="44" y="58" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" opacity="0.9">{status_text}</text>
       </g>
     </svg>
     """
 
-    # Return with headers to prevent caching old badges
     headers = {
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Pragma": "no-cache",
