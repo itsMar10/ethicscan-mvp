@@ -72,42 +72,67 @@ async def scenario_mixed(payload: dict):
 
 @app.get("/badge")
 async def get_badge(score: int):
-    # 1. Determine Logic (Colors & Text)
+    # 1. Determine Logic (Colors, Text, and Glow)
     if score >= 90:
-        # Premium Green (Emerald)
-        color_bg = "#059669"  
-        color_text = "#ffffff"
+        # Premium Green (Emerald) with Glow
+        color_primary = "#10B981" # Vibrant green
+        color_secondary = "#059669" # Darker green for gradient
         status_text = "SECURE"
+        glow_color = "#34D399" # Brighter green for outer glow
     elif score >= 50:
-        # Warning Yellow (Amber)
-        color_bg = "#d97706"
-        color_text = "#ffffff"
+        # Warning Yellow (Amber) with Glow
+        color_primary = "#F59E0B" # Vibrant amber
+        color_secondary = "#D97706" # Darker amber for gradient
         status_text = "RISK"
+        glow_color = "#FBBF24" # Brighter amber for outer glow
     else:
-        # Critical Red
-        color_bg = "#dc2626"
-        color_text = "#ffffff"
+        # Critical Red with Glow
+        color_primary = "#EF4444" # Vibrant red
+        color_secondary = "#DC2626" # Darker red for gradient
         status_text = "UNSAFE"
+        glow_color = "#F87171" # Brighter red for outer glow
 
-    # 2. Modern SVG Template (Pill Shape with Score)
-    # Left side: Dark background "EthicScan"
-    # Right side: Colored background with Score
+    # 2. Modern, Dark-Themed SVG Template
+    # - Uses a dark gradient background for the main body.
+    # - Uses a colored gradient for the score area.
+    # - Adds a subtle outer glow effect.
     svg = f"""
-    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="28" viewBox="0 0 160 28" fill="none">
-        <rect width="160" height="28" rx="6" fill="#111827"/>
-        
-        <path d="M90 0H154C157.314 0 160 2.68629 160 6V22C160 25.3137 157.314 28 154 28H85L90 0Z" fill="{color_bg}"/>
-        
-        <text x="12" y="19" fill="#F3F4F6" font-family="Verdana, Geneva, sans-serif" font-size="11" font-weight="bold">EthicScan</text>
-        
-        <line x1="82" y1="0" x2="78" y2="28" stroke="#1F2937" stroke-width="2"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="180" height="32" viewBox="0 0 180 32" fill="none">
+        <defs>
+            <linearGradient id="bg-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1F2937"/>
+                <stop offset="100%" stop-color="#111827"/>
+            </linearGradient>
+            <linearGradient id="score-gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="{color_primary}"/>
+                <stop offset="100%" stop-color="{color_secondary}"/>
+            </linearGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
 
-        <text x="100" y="19" fill="{color_text}" font-family="Verdana, Geneva, sans-serif" font-size="11" font-weight="bold">{score}</text>
-        <text x="126" y="19" fill="{color_text}" font-family="Verdana, Geneva, sans-serif" font-size="10" opacity="0.9">{status_text}</text>
+        <rect x="1" y="1" width="178" height="30" rx="7" stroke="{glow_color}" stroke-width="1.5" fill="none" opacity="0.6" filter="url(#glow)"/>
+        
+        <rect width="180" height="32" rx="8" fill="url(#bg-gradient)"/>
+        
+        <path d="M100 0H172C176.418 0 180 3.58172 180 8V24C180 28.4183 176.418 32 172 32H95L100 0Z" fill="url(#score-gradient)"/>
+        
+        <path d="M16 6L24 9V15C24 19.4 20.8 24 16 26C11.2 24 8 19.4 8 15V9L16 6Z" fill="#F3F4F6"/>
+        <text x="32" y="20" fill="#F3F4F6" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" letter-spacing="0.5">EthicScan</text>
+        
+        <line x1="92" y1="4" x2="88" y2="28" stroke="#374151" stroke-width="1.5"/>
+
+        <text x="115" y="21" fill="#FFFFFF" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800">{score}</text>
+        <text x="146" y="21" fill="#FFFFFF" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="600" letter-spacing="1" opacity="0.9">{status_text}</text>
     </svg>
     """
     
-    # Return with headers so browsers don't cache the old image
+    # Return with no-cache headers
     headers = {
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Pragma": "no-cache",
