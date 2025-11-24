@@ -72,70 +72,71 @@ async def scenario_mixed(payload: dict):
 
 @app.get("/badge")
 async def get_badge(score: int):
-    # 1. Determine Logic (Colors, Text, and Glow)
+    # Clamp score between 0 and 100 for display
+    score = max(0, min(score, 100))
+
+    # ----- 1. Determine Logic (Colors & Text) -----
     if score >= 90:
-        # Premium Green (Emerald) with Glow
-        color_primary = "#10B981" # Vibrant green
-        color_secondary = "#059669" # Darker green for gradient
-        status_text = "SECURE"
-        glow_color = "#34D399" # Brighter green for outer glow
+        # Secure (Green)
+        color_primary = "#10B981"
+        color_secondary = "#059669"
+        glow_color = "#22C55E"
+        status_text = "SAFE"
     elif score >= 50:
-        # Warning Yellow (Amber) with Glow
-        color_primary = "#F59E0B" # Vibrant amber
-        color_secondary = "#D97706" # Darker amber for gradient
+        # Risk (Amber)
+        color_primary = "#F59E0B"
+        color_secondary = "#D97706"
+        glow_color = "#FBBF24"
         status_text = "RISK"
-        glow_color = "#FBBF24" # Brighter amber for outer glow
     else:
-        # Critical Red with Glow
-        color_primary = "#EF4444" # Vibrant red
-        color_secondary = "#DC2626" # Darker red for gradient
+        # Unsafe (Red)
+        color_primary = "#EF4444"
+        color_secondary = "#B91C1C"
+        glow_color = "#F97373"
         status_text = "UNSAFE"
-        glow_color = "#F87171" # Brighter red for outer glow
 
-    # 2. Modern, Dark-Themed SVG Template
-    # - Uses a dark gradient background for the main body.
-    # - Uses a colored gradient for the score area.
-    # - Adds a subtle outer glow effect.
+    # ----- 2. Modern SVG Template -----
     svg = f"""
-    <svg xmlns="http://www.w3.org/2000/svg" width="180" height="32" viewBox="0 0 180 32" fill="none">
-        <defs>
-            <linearGradient id="bg-gradient" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#1F2937"/>
-                <stop offset="100%" stop-color="#111827"/>
-            </linearGradient>
-            <linearGradient id="score-gradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="{color_primary}"/>
-                <stop offset="100%" stop-color="{color_secondary}"/>
-            </linearGradient>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-            </filter>
-        </defs>
+    <svg xmlns="http://www.w3.org/2000/svg" width="320" height="96" viewBox="0 0 320 96">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0F172A" />
+          <stop offset="100%" stop-color="#020617" />
+        </linearGradient>
 
-        <rect x="1" y="1" width="178" height="30" rx="7" stroke="{glow_color}" stroke-width="1.5" fill="none" opacity="0.6" filter="url(#glow)"/>
-        
-        <rect width="180" height="32" rx="8" fill="url(#bg-gradient)"/>
-        
-        <path d="M100 0H172C176.418 0 180 3.58172 180 8V24C180 28.4183 176.418 32 172 32H95L100 0Z" fill="url(#score-gradient)"/>
-        
-        <path d="M16 6L24 9V15C24 19.4 20.8 24 16 26C11.2 24 8 19.4 8 15V9L16 6Z" fill="#F3F4F6"/>
-        <text x="32" y="20" fill="#F3F4F6" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" letter-spacing="0.5">EthicScan</text>
-        
-        <line x1="92" y1="4" x2="88" y2="28" stroke="#374151" stroke-width="1.5"/>
+        <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="{color_primary}" />
+          <stop offset="100%" stop-color="{color_secondary}" />
+        </linearGradient>
 
-        <text x="115" y="21" fill="#FFFFFF" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800">{score}</text>
-        <text x="146" y="21" fill="#FFFFFF" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="600" letter-spacing="1" opacity="0.9">{status_text}</text>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="{glow_color}" flood-opacity="0.45" />
+        </filter>
+      </defs>
+
+      <rect x="0.5" y="0.5" width="319" height="95" rx="28" fill="url(#bg)" stroke="{glow_color}" stroke-opacity="0.18" filter="url(#glow)" />
+
+      <g transform="translate(32, 26)">
+        <path d="M24 4L40 10V22C40 31 34 40 24 44C14 40 8 31 8 22V10L24 4Z" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linejoin="round" />
+        <path d="M17 22L22 27L31 17" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        
+        <text x="56" y="32" font-family="Verdana, Geneva, sans-serif" font-size="24" font-weight="600" fill="#F9FAFB">EthicScan</text>
+      </g>
+
+      <g transform="translate(220, 12)">
+        <rect width="88" height="72" rx="20" fill="url(#scoreGradient)" />
+        
+        <text x="44" y="36" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">{score}%</text>
+        
+        <text x="44" y="58" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="13" font-weight="600" fill="#FFFFFF" opacity="0.9">{status_text}</text>
+      </g>
     </svg>
     """
-    
-    # Return with no-cache headers
+
+    # Return with headers to prevent caching old badges
     headers = {
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Pragma": "no-cache",
         "Expires": "0",
     }
-    return Response(content=svg, media_type="image/svg+xml", headers=headers)
+    return Response(content=svg.strip(), media_type="image/svg+xml", headers=headers)
