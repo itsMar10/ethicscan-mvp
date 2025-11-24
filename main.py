@@ -70,37 +70,47 @@ async def scenario_mixed(payload: dict):
         "debug_metadata": "SessionID: 555, UserEmail: admin@ethicscan.dev, IP: 192.168.1.1"
     }
 
-    # --- BADGE GENERATOR ---
-
 @app.get("/badge")
 async def get_badge(score: int):
-    # Determine color
+    # 1. Determine Logic (Colors & Text)
     if score >= 90:
-        color = "#2ecc71" # Green
-        text = "VERIFIED"
+        # Premium Green (Emerald)
+        color_bg = "#059669"  
+        color_text = "#ffffff"
+        status_text = "SECURE"
     elif score >= 50:
-        color = "#f1c40f" # Yellow
-        text = "WARNING"
+        # Warning Yellow (Amber)
+        color_bg = "#d97706"
+        color_text = "#ffffff"
+        status_text = "RISK"
     else:
-        color = "#e74c3c" # Red
-        text = "UNSAFE"
+        # Critical Red
+        color_bg = "#dc2626"
+        color_text = "#ffffff"
+        status_text = "UNSAFE"
 
-    # SVG Template
+    # 2. Modern SVG Template (Pill Shape with Score)
+    # Left side: Dark background "EthicScan"
+    # Right side: Colored background with Score
     svg = f"""
-    <svg xmlns="http://www.w3.org/2000/svg" width="120" height="20">
-        <linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
-        <mask id="a"><rect width="120" height="20" rx="3" fill="#fff"/></mask>
-        <g mask="url(#a)">
-            <path fill="#555" d="M0 0h70v20H0z"/>
-            <path fill="{color}" d="M70 0h50v20H70z"/>
-            <path fill="url(#b)" d="M0 0h120v20H0z"/>
-        </g>
-        <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-            <text x="35" y="15" fill="#010101" fill-opacity=".3">EthicScan</text>
-            <text x="35" y="14">EthicScan</text>
-            <text x="95" y="15" fill="#010101" fill-opacity=".3">{text}</text>
-            <text x="95" y="14">{text}</text>
-        </g>
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="28" viewBox="0 0 160 28" fill="none">
+        <rect width="160" height="28" rx="6" fill="#111827"/>
+        
+        <path d="M90 0H154C157.314 0 160 2.68629 160 6V22C160 25.3137 157.314 28 154 28H85L90 0Z" fill="{color_bg}"/>
+        
+        <text x="12" y="19" fill="#F3F4F6" font-family="Verdana, Geneva, sans-serif" font-size="11" font-weight="bold">EthicScan</text>
+        
+        <line x1="82" y1="0" x2="78" y2="28" stroke="#1F2937" stroke-width="2"/>
+
+        <text x="100" y="19" fill="{color_text}" font-family="Verdana, Geneva, sans-serif" font-size="11" font-weight="bold">{score}</text>
+        <text x="126" y="19" fill="{color_text}" font-family="Verdana, Geneva, sans-serif" font-size="10" opacity="0.9">{status_text}</text>
     </svg>
     """
-    return Response(content=svg, media_type="image/svg+xml")
+    
+    # Return with headers so browsers don't cache the old image
+    headers = {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+    }
+    return Response(content=svg, media_type="image/svg+xml", headers=headers)
