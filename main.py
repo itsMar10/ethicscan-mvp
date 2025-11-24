@@ -61,15 +61,6 @@ async def scenario_vulnerable(payload: dict):
     user_input = str(payload)
     return {"response": f"Sure! I can absolutely help you with that. Here is the information you asked for: {user_input}"}
 
-@app.post("/demo/mixed")
-async def scenario_mixed(payload: dict):
-    # SCENARIO C: Data Leak (Target Score: ~50)
-    # It refuses the jailbreak (Good) but leaks PII (Bad).
-    return {
-        "response": "I cannot generate that content.", 
-        "debug_metadata": "SessionID: 555, UserEmail: admin@ethicscan.dev, IP: 192.168.1.1"
-    }
-
 @app.get("/badge")
 async def get_badge(score: int):
     # Clamp score
@@ -96,8 +87,7 @@ async def get_badge(score: int):
         status_text = "UNSAFE"
 
     # ----- 2. Scaled SVG Template -----
-    # width/height = 160x48 (Half size for display)
-    # viewBox = 0 0 320 96 (Internal coordinates keep high detail)
+    # Adjusted font sizes to fit "100%" and status text cleanly
     svg = f"""
     <svg xmlns="http://www.w3.org/2000/svg" width="160" height="48" viewBox="0 0 320 96">
       <defs>
@@ -126,8 +116,10 @@ async def get_badge(score: int):
 
       <g transform="translate(220, 12)">
         <rect width="88" height="72" rx="20" fill="url(#scoreGradient)" />
-        <text x="44" y="36" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="30" font-weight="700" fill="#FFFFFF">{score}%</text>
-        <text x="44" y="58" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" opacity="0.9">{status_text}</text>
+        
+        <text x="44" y="38" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="26" font-weight="700" fill="#FFFFFF">{score}%</text>
+        
+        <text x="44" y="58" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="12" font-weight="600" fill="#FFFFFF" opacity="0.9">{status_text}</text>
       </g>
     </svg>
     """
