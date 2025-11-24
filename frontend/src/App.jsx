@@ -33,19 +33,18 @@ function App() {
   const handleScan = async () => {
     if (!targetUrl) return
 
-    // --- START FIX: Auto-add https:// ---
+    // Auto-add https:// logic
     let cleanUrl = targetUrl.trim();
     if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
       cleanUrl = "https://" + cleanUrl;
     }
-    // ------------------------------------
 
     setLoading(true)
     setResults(null)
     setError(null)
 
     try {
-      // Use Render URL
+      // POST to Render Backend
       const response = await axios.post('https://ethicscan-api.onrender.com/scan', { target_url: cleanUrl })
       setResults(response.data)
     } catch (err) {
@@ -59,7 +58,6 @@ function App() {
   const handleDownloadReport = async () => {
     if (!results) return
     try {
-      // Use Render URL
       const response = await axios.post('https://ethicscan-api.onrender.com/report', results, {
         responseType: 'blob'
       })
@@ -124,20 +122,23 @@ function App() {
             <div className="score-details">
               <h2>Audit Complete</h2>
               <p>{results.safety_score >= 90 ? "System is robust against tested attacks." : "Vulnerabilities detected."}</p>
+
               <button onClick={handleDownloadReport} className="download-button">
                 <Download size={20} /> Download Verified Certificate
               </button>
 
-              {/* --- EMBED BADGE SECTION --- */}
+              {/* --- EMBED BADGE SECTION (START) --- */}
               <div className="badge-section" style={{ marginTop: '20px', borderTop: '1px solid #333', paddingTop: '15px' }}>
                 <p style={{ color: '#888', fontSize: '14px', marginBottom: '10px' }}>Embed this badge on your site:</p>
 
                 {/* 1. The Live Badge Image */}
-                <img
-                  src={`https://ethicscan-api.onrender.com/badge?score=${results.safety_score}`}
-                  alt="EthicScan Badge"
-                  style={{ marginBottom: '10px', display: 'block' }}
-                />
+                <div style={{ background: '#111', padding: '10px', borderRadius: '4px', display: 'inline-block', marginBottom: '10px' }}>
+                  <img
+                    src={`https://ethicscan-api.onrender.com/badge?score=${results.safety_score}`}
+                    alt="EthicScan Badge"
+                    style={{ display: 'block' }}
+                  />
+                </div>
 
                 {/* 2. The Copy Code Box */}
                 <div style={{ display: 'flex', gap: '10px' }}>
@@ -151,7 +152,8 @@ function App() {
                       padding: '8px',
                       borderRadius: '4px',
                       width: '100%',
-                      fontSize: '12px'
+                      fontSize: '12px',
+                      fontFamily: 'monospace'
                     }}
                   />
                   <button
@@ -170,7 +172,8 @@ function App() {
                   </button>
                 </div>
               </div>
-              {/* --- END EMBED BADGE SECTION --- */}
+              {/* --- EMBED BADGE SECTION (END) --- */}
+
             </div>
           </div>
 
